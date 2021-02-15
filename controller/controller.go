@@ -2,20 +2,11 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"go_gin_project/models"
+	"net/http"
 )
 
-var (
-	DB *gorm.DB
-)
-
-type Todo struct {
-	ID int `json:"id"`
-	Title string `json:"title"`
-	Status bool `json:"status"`
-}
 
 func SayHello(c *gin.Context){
 	c.HTML(http.StatusOK, "index.html", nil)
@@ -23,12 +14,12 @@ func SayHello(c *gin.Context){
 
 func AddTodo(c *gin.Context){
 	// 1.从前端页面中把数据拿出来
-	var todo Todo
+	var todo models.Todo
 	c.BindJSON(&todo)
 	// 2.把数据存入数据库
 	// 存入数据的操作是 DB.Create(&todo) 但是这里把存入数据和返回响应写在一起了
 	// 3.返回一个响应
-	if err := DB.Create(&todo).Error; err != nil{
+	if err := models.CreateATodo(&todo); err != nil{
 		c.JSON(http.StatusOK, gin.H{
 			"error": err,
 		})
@@ -39,8 +30,8 @@ func AddTodo(c *gin.Context){
 
 func FindAllTodos(c *gin.Context){
 	// 查询表中所有的数据
-	var todoList []Todo
-	if err := DB.Find(&todoList).Error; err!= nil {
+	var todoList []models.Todo
+	if err := models.FindAllTodos(&todoList); err!= nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}else {
 		c.JSON(http.StatusOK, todoList)
@@ -49,8 +40,8 @@ func FindAllTodos(c *gin.Context){
 
 func UpdateTodo(c *gin.Context){
 	id := c.Param("id")
-	var todo Todo
-	if err := DB.Where("id=?", id).First(&todo).Error; err != nil{
+	var todo models.Todo
+	if err := models.FindTodoById(&todo, id); err != nil{
 		c.JSON(http.StatusOK, gin.H{
 			"error": err,
 		})
@@ -58,7 +49,7 @@ func UpdateTodo(c *gin.Context){
 	}
 	// 保存更新之后的数据
 	c.BindJSON(&todo)
-	if err := DB.Save(&todo).Error; err!= nil{
+	if err := models.SaveTodo(&todo); err!= nil{
 		c.JSON(http.StatusOK, gin.H{"error": err.Error()})
 	}else{
 		c.JSON(http.StatusOK, todo)
@@ -71,7 +62,7 @@ func DeleteTodo (c *gin.Context){
 		c.JSON(http.StatusOK, gin.H{"error": "无效的id"})
 		return
 	}
-	if err := DB.Where("id=?", id).Delete(Todo{}).Error;err!=nil{
+	if err := models.DeleteOneTodo(id);err!=nil{
 		c.JSON(http.StatusOK, gin.H{"error": err.Error()})
 	}else{
 		c.JSON(http.StatusOK, gin.H{id:"deleted"})
