@@ -23,7 +23,7 @@ func AddTodo(c *gin.Context) {
 	// 存入数据的操作是 DB.Create(&todo) 但是这里把存入数据和返回响应写在一起了
 	// 3.返回一个响应
 	if err := models.CreateATodo(&todo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"error": err,
 		})
 	} else {

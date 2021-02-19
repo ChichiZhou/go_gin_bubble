@@ -9,6 +9,7 @@ import (
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	// 解决跨域问题
 	r.Use(cors.Default())
 	// 告诉gin框架模板文件引用的静态文件去哪里找
 	r.Static("/static", "static")
@@ -39,6 +40,8 @@ func SetupRouter() *gin.Engine {
 		v1Group.DELETE("/todo/:id", controller.DeleteTodo)
 	}
 
+	// 由于这里是 v2Group.POST("/", controller.FindUser)
+	// 所以在前端需要用 http://localhost/9000/login/
 	v2Group := r.Group("login")
 	{
 		v2Group.POST("/", controller.FindUser)
