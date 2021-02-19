@@ -1,16 +1,20 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
 	"go_gin_project/controller"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine{
+func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.Default())
 	// 告诉gin框架模板文件引用的静态文件去哪里找
 	r.Static("/static", "static")
 	// 告诉gin框架去哪里找模板文件
 	r.LoadHTMLGlob("templates/*")
+	// 规定了首页是通过 SayHello 渲染的
 	r.GET("/", controller.SayHello)
 
 	// v1
@@ -33,6 +37,11 @@ func SetupRouter() *gin.Engine{
 
 		// 删除某一个待办事项
 		v1Group.DELETE("/todo/:id", controller.DeleteTodo)
+	}
+
+	v2Group := r.Group("login")
+	{
+		v2Group.POST("/", controller.FindUser)
 	}
 	return r
 }
