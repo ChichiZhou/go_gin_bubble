@@ -37,7 +37,7 @@ func FindAllTodos(c *gin.Context) {
 	if err := models.FindAllTodos(&todoList); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
-		c.JSON(http.StatusOK, todoList)
+		c.JSON(http.StatusOK, todoList) // 问题：这里返回的 json 是什么格式的？？？
 	}
 }
 
